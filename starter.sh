@@ -1,8 +1,7 @@
 #! /bin/bash
 
-# Ask for service name
-echo "👋 Hi! What's the name of your service?"
-read SERVICE_NAME
+# Read service name from first argument
+SERVICE_NAME=$1
 
 # Install Docked [https://github.com/rails/docked]
 # NOTE: Docked is a tool for managing Docker Compose-based development environments for Rails.
