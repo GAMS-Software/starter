@@ -8,6 +8,7 @@ SERVICE_NAME=$1
 echo "⏳ Installing Docked..."
 docker volume create ruby-bundle-cache
 alias docked='docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli'
+source ~/.bashrc
 echo "✅ Docked installed successfully!"
 
 # Create new rails app using service name
