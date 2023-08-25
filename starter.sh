@@ -182,6 +182,8 @@ sed -i -e 's/# config.cache_store = :mem_cache_store/config.cache_store = :redis
 rm config/environments/production.rb-e
 echo "✅ Redis activated in production environment successfully!"
 
+# TODO: Edit database.yml connection to work with postgresql
+
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
 echo "# $SERVICE_NAME
