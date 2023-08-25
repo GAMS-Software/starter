@@ -408,6 +408,10 @@ echo "⏳ Adding sidekiq gem to Gemfile and add it's dependencies..."
 echo "
 # Use sidekiq for background jobs
 gem 'sidekiq'" >> Gemfile
+# add sidekiq-scheduler gem
+echo "
+# Use sidekiq-scheduler for background jobs scheduling
+gem 'sidekiq-scheduler'" >> Gemfile
 # remove file Gemfile-e
 rm Gemfile-e
 echo "✅ sidekiq gem added to Gemfile and it's dependencies added successfully!"
@@ -459,18 +463,26 @@ timeout: 30
 max_retries: 3
 pidfile: ./tmp/pids/sidekiq.pid
 logfile: ./log/sidekiq.log
+
 queues:
   - default
   - mailers
   - low
   - critical
+
+# scheduler:
+#   schedule:
+#     ExampleJob:
+#       cron: "*/1 * * * *"
+#       class: "ExampleJob"
+#       queue: "scheduled"
 " > config/sidekiq.yml
 echo "✅ sidekiq.yml configuration file created successfully!"
 
 # Add sidekiq worker to Procfile.dev
 echo "⏳ Adding sidekiq worker to Procfile.dev..."
-# add a new row on file Procfile.dev with content "worker: bundle exec sidekiq -C config/sidekiq.yml"
 echo "worker: bundle exec sidekiq -C config/sidekiq.yml" >> Procfile.dev
+echo "scheduler: IS_SCHEDULER=true bundle exec sidekiq -C config/sidekiq.yml -q scheduled" >> Procfile.dev
 echo "✅ Sidekiq worker added to Procfile.dev successfully!"
 
 fi
