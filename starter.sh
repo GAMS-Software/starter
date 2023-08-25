@@ -106,6 +106,10 @@ gem 'lato'" >> Gemfile
 echo "
 # Use postgresql as the database for Active Record
 gem 'pg'" >> Gemfile
+# add sidekiq gem
+echo "
+# Use sidekiq for background jobs
+gem 'sidekiq'" >> Gemfile
 # add version 1.3.3 to turbo-rails gem
 sed -i -e 's/gem "turbo-rails"/gem "turbo-rails", "1.3.3"/g' Gemfile
 # uncomment the kredis gem
@@ -262,6 +266,36 @@ echo "Lato.configure do |config|
   # https://github.com/lato-gam/lato/blob/main/lib/lato/config.rb
 end" > config/initializers/lato_config.rb
 echo "✅ lato_config.rb initializer created successfully!"
+
+# TODO: FIX!
+# # Activate sidekiq in development environment
+# echo "⏳ Activating sidekiq in development environment..."
+# # add "config.active_job.queue_adapter = :sidekiq" in development environment before the row "end"
+# sed -i -e 's/end/\n  # Use sidekiq for background jobs.\n  config.active_job.queue_adapter = :sidekiq\nend/g' config/environments/development.rb
+# rm config/environments/development.rb-e
+# echo "✅ Sidekiq activated in development environment successfully!"
+
+# Activate sidekiq in production environment
+echo "⏳ Activating sidekiq in production environment..."
+# replace "# config.active_job.queue_adapter     = :resque" with "config.active_job.queue_adapter = :sidekiq"
+sed -i -e 's/# config.active_job.queue_adapter     = :resque/config.active_job.queue_adapter = :sidekiq/g' config/environments/production.rb
+rm config/environments/production.rb-e
+echo "✅ Sidekiq activated in production environment successfully!"
+
+# Create a sidekiq.rb initializer to configure sidekiq
+echo "⏳ Creating sidekiq.rb initializer..."
+touch config/initializers/sidekiq.rb
+echo "# Configure sidekiq to use redis as cache store
+
+Sidekiq.configure_server do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+end
+
+Sidekiq.configure_client do |config|
+  config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+end
+" > config/initializers/sidekiq.rb
+echo "✅ sidekiq.rb initializer created successfully!"
 
 # Run installation tasks
 echo "⏳ Running installation tasks..."

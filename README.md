@@ -1,6 +1,11 @@
 # Starter
 
-A bash script to start a new projects with Docker and Docker Compose 🚀
+A bash script to start a new Rails project with Lato, Docker and Docker Compose 🚀
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Usage
 
@@ -13,3 +18,12 @@ rm starter.sh
 ```
 
 Start coding! 🤓
+
+## Tested on
+
+- macOS 13.4.1
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
