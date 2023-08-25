@@ -122,15 +122,15 @@ RUN apt-get update -qq && apt-get install -y nodejs && npm install -g yarn
 # Install postgresql dependencies
 RUN apt-get update -qq && apt-get install -y libpq-dev
 
-# Install foreman to manage Procfile
-RUN gem install foreman
-
 # Mount the Rails application
 WORKDIR /rails
 COPY . ./
 
 # Install bundler
 RUN gem install bundler
+
+# Install foreman to manage Procfile
+RUN gem install foreman
 
 # Install gems
 RUN bundle install
