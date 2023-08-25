@@ -1,5 +1,9 @@
 # Starter
 
-A bash script to start a new lato projects with Docker and Docker Compose 🚀
+A bash script to start a new projects with Docker and Docker Compose 🚀
 
-NOTE: **Under development**
+## Usage
+
+```bash
+wget -qO- https://raw.githubusercontent.com/brunolcarli/starter/master/starter.sh | bash -s -- <project-name>
+```
