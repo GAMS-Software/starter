@@ -469,6 +469,10 @@ queues:
   - mailers
   - low
   - critical
+  - action_mailbox_routing
+  - action_mailbox_incineration
+  - active_storage_analysis
+  - active_storage_purge
 
 # scheduler:
 #   schedule:
