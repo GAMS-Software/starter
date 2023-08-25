@@ -13,7 +13,7 @@ Open terminal an run:
 
 ```bash
 wget https://raw.githubusercontent.com/lato-gam/starter/main/starter.sh
-sh starter.sh PROJECT_NAME
+sh starter.sh
 rm starter.sh
 ```
 
