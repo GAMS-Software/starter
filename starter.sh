@@ -1,19 +1,20 @@
 #! /bin/bash
 
-# Get service name from first argument
-SERVICE_NAME=$1
+# Ask for service name
+echo "👋 Hi! What's the name of your service?"
+read SERVICE_NAME
 
 # Install Docked [https://github.com/rails/docked]
 # NOTE: Docked is a tool for managing Docker Compose-based development environments for Rails.
 echo "⏳ Installing Docked..."
 docker volume create ruby-bundle-cache
 alias docked='docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli'
-source ~/.bashrc
 echo "✅ Docked installed successfully!"
 
 # Create new rails app using service name
 echo "⏳ Creating new rails app..."
-docked rails new $SERVICE_NAME
+# docked rails new $SERVICE_NAME
+docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli rails new $SERVICE_NAME
 echo "✅ New rails app created successfully!"
 
 # Change directory to service name
