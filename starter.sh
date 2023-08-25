@@ -1,9 +1,7 @@
 #! /bin/bash
 
-# Ask name of the service to user
-echo "Enter the name of the service: "
-read service_name
-echo "Service name is: $service_name"
+# Get service name from first argument
+SERVICE_NAME=$1
 
 # Install Docked [https://github.com/rails/docked]
 # NOTE: Docked is a tool for managing Docker Compose-based development environments for Rails.
@@ -14,11 +12,11 @@ echo "✅ Docked installed successfully!"
 
 # Create new rails app using service name
 echo "⏳ Creating new rails app..."
-docked rails new $service_name
+docked rails new $SERVICE_NAME
 echo "✅ New rails app created successfully!"
 
 # Change directory to service name
-cd $service_name
+cd $SERVICE_NAME
 
 # Create a docker-compose.yml file for the service with postgresql, redis and rails
 echo "⏳ Creating docker-compose.yml file..."
@@ -31,7 +29,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: $service_name
+      POSTGRES_DB: $SERVICE_NAME
     ports:
       - 5432:5432
   redis:
@@ -185,7 +183,7 @@ echo "✅ Redis activated in production environment successfully!"
 
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
-echo "# $service_name
+echo "# $SERVICE_NAME
 
 ## Getting Started
 
@@ -222,4 +220,4 @@ echo "# $service_name
 echo "✅ README.md file created successfully!"
 
 # Complete the rails app setup and print the success message
-echo "🎉 $service_name service created successfully!"
+echo "🎉 $SERVICE_NAME service created successfully!"
