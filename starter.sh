@@ -49,9 +49,26 @@ services:
       - 5050:80
     depends_on:
       - db
+  worker:
+    build: .
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    environment:
+      - RAILS_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/PROJECT_NAME
+    volumes:
+      - .:/rails
+      - ruby-bundle-cache:/bundle
+    depends_on:
+      - db
+      - redis
   web:
     build: .
     command: bundle exec rails s -p 3000 -b 0.0.0.0
+    environment:
+      - RAILS_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/PROJECT_NAME
     volumes:
       - .:/rails
       - ruby-bundle-cache:/bundle
@@ -225,7 +242,7 @@ development:
   database: $SERVICE_NAME
   username: postgres
   password: postgres
-  host: db
+  host: localhost
   port: 5432
 
 production:
@@ -234,7 +251,7 @@ production:
   database: $SERVICE_NAME
   username: postgres
   password: postgres
-  host: db
+  host: localhost
   port: 5432" >> config/database.yml
 echo "✅ database.yml file edited successfully!"
 
@@ -267,13 +284,12 @@ echo "Lato.configure do |config|
 end" > config/initializers/lato_config.rb
 echo "✅ lato_config.rb initializer created successfully!"
 
-# TODO: FIX!
-# # Activate sidekiq in development environment
-# echo "⏳ Activating sidekiq in development environment..."
-# # add "config.active_job.queue_adapter = :sidekiq" in development environment before the row "end"
-# sed -i -e 's/end/\n  # Use sidekiq for background jobs.\n  config.active_job.queue_adapter = :sidekiq\nend/g' config/environments/development.rb
-# rm config/environments/development.rb-e
-# echo "✅ Sidekiq activated in development environment successfully!"
+# Activate sidekiq in development environment
+echo "⏳ Activating sidekiq in development environment..."
+# add "config.active_job.queue_adapter = :sidekiq" after "config.action_cable.disable_request_forgery_protection = true"
+sed -i -e 's/config.action_cable.disable_request_forgery_protection = true/config.action_cable.disable_request_forgery_protection = true\n\n  # Use sidekiq for background jobs.\n  config.active_job.queue_adapter = :sidekiq/g' config/environments/development.rb
+rm config/environments/development.rb-e
+echo "✅ Sidekiq activated in development environment successfully!"
 
 # Activate sidekiq in production environment
 echo "⏳ Activating sidekiq in production environment..."
@@ -297,8 +313,35 @@ end
 " > config/initializers/sidekiq.rb
 echo "✅ sidekiq.rb initializer created successfully!"
 
+# Add sidekiq web UI to routes file
+echo "⏳ Adding sidekiq web UI to routes file..."
+# add "require 'sidekiq/web'" on top of the file
+sed -i -e 's/Rails.application.routes.draw do/require "sidekiq\/web"\n\nRails.application.routes.draw do/g' config/routes.rb
+# add "mount Sidekiq::Web => '/sidekiq'" after "Rails.application.routes.draw do"
+sed -i -e 's/Rails.application.routes.draw do/Rails.application.routes.draw do\n  mount Sidekiq::Web => "\/sidekiq"/g' config/routes.rb
+rm config/routes.rb-e
+echo "✅ Sidekiq web UI added to routes file successfully!"
+
+# Create sidekiq.yml configuration file
+echo "⏳ Creating sidekiq.yml configuration file..."
+touch config/sidekiq.yml
+echo "verbose: false
+concurrency: 5
+timeout: 30
+max_retries: 3
+pidfile: ./tmp/pids/sidekiq.pid
+logfile: ./log/sidekiq.log
+queues:
+  - default
+  - mailers
+  - low
+  - critical
+" > config/sidekiq.yml
+echo "✅ sidekiq.yml configuration file created successfully!"
+
 # Run installation tasks
 echo "⏳ Running installation tasks..."
+docker-compose run web rails db:drop
 docker-compose run web rails db:create
 docker-compose run web rails db:migrate
 docker-compose run web rails db:seed
@@ -313,6 +356,7 @@ echo "# $SERVICE_NAME
 This is a [Rails](https://rubyonrails.org/) application dockerized.
 The default database is postgresql.
 The default cache store is redis.
+The default background job processor is sidekiq.
 
 All required services are configured in the docker-compose.yml file.
 
