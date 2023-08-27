@@ -89,8 +89,9 @@ services:
       - db
   web:
     build: .
-    command: foreman start -f Procfile.dev
+    command: foreman start -f Procfile
     environment:
+      - PORT=3000
       - RAILS_ENV=development
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgres://postgres:postgres@db:5432/PROJECT_NAME
@@ -136,14 +137,14 @@ RUN gem install foreman
 RUN bundle install
 
 # Start the main process
-CMD foreman start -f Procfile.dev
-EXPOSE 3000
+CMD foreman start -f Procfile
+EXPOSE $PORT
 " > Dockerfile
 echo "✅ Dockerfile created successfully!"
 
-# Create a Procfile.dev file for the service
-echo "⏳ Creating Procfile.dev file..."
-echo "web: bundle exec rails s -p 3000 -b 0.0.0.0" > Procfile.dev
+# Create a Procfile file for the service
+echo "⏳ Creating Procfile file..."
+echo "web: bundle exec rails s -p $PORT -e $RAILS_ENV -b 0.0.0.0" > Procfile.dev
 
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
@@ -485,8 +486,8 @@ echo "✅ sidekiq.yml configuration file created successfully!"
 
 # Add sidekiq worker to Procfile.dev
 echo "⏳ Adding sidekiq worker to Procfile.dev..."
-echo "worker: bundle exec sidekiq -C config/sidekiq.yml" >> Procfile.dev
-echo "scheduler: IS_SCHEDULER=true bundle exec sidekiq -C config/sidekiq.yml -q scheduled" >> Procfile.dev
+echo "worker: bundle exec sidekiq -C config/sidekiq.yml -e $RAILS_ENV" >> Procfile.dev
+echo "scheduler: IS_SCHEDULER=true bundle exec sidekiq -C config/sidekiq.yml -q scheduled -e $RAILS_ENV" >> Procfile.dev
 echo "✅ Sidekiq worker added to Procfile.dev successfully!"
 
 fi
