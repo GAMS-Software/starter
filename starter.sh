@@ -138,13 +138,13 @@ RUN bundle install
 
 # Start the main process
 CMD foreman start -f Procfile
-EXPOSE $PORT
+EXPOSE \$PORT
 " > Dockerfile
 echo "✅ Dockerfile created successfully!"
 
 # Create a Procfile file for the service
 echo "⏳ Creating Procfile file..."
-echo "web: bundle exec rails s -p $PORT -e $RAILS_ENV -b 0.0.0.0" > Procfile.dev
+echo "web: bundle exec rails s -p \$PORT -e \$RAILS_ENV -b 0.0.0.0" > Procfile
 
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
@@ -484,11 +484,11 @@ queues:
 " > config/sidekiq.yml
 echo "✅ sidekiq.yml configuration file created successfully!"
 
-# Add sidekiq worker to Procfile.dev
-echo "⏳ Adding sidekiq worker to Procfile.dev..."
-echo "worker: bundle exec sidekiq -C config/sidekiq.yml -e $RAILS_ENV" >> Procfile.dev
-echo "scheduler: IS_SCHEDULER=true bundle exec sidekiq -C config/sidekiq.yml -q scheduled -e $RAILS_ENV" >> Procfile.dev
-echo "✅ Sidekiq worker added to Procfile.dev successfully!"
+# Add sidekiq worker to Procfile
+echo "⏳ Adding sidekiq worker to Procfile..."
+echo "worker: bundle exec sidekiq -C config/sidekiq.yml -e \$RAILS_ENV" >> Procfile
+echo "scheduler: IS_SCHEDULER=true bundle exec sidekiq -C config/sidekiq.yml -q scheduled -e \$RAILS_ENV" >> Procfile
+echo "✅ Sidekiq worker added to Procfile successfully!"
 
 fi
 
