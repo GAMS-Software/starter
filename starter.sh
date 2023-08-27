@@ -136,15 +136,13 @@ RUN gem install foreman
 # Install gems
 RUN bundle install
 
-# Start the main process
-CMD foreman start -f Procfile
 EXPOSE \$PORT
 " > Dockerfile
 echo "✅ Dockerfile created successfully!"
 
 # Create a Procfile file for the service
 echo "⏳ Creating Procfile file..."
-echo "web: bundle exec rails s -p \$PORT -e \$RAILS_ENV -b 0.0.0.0" > Procfile
+echo "web: bundle exec rails s -b 0.0.0.0 -e \$RAILS_ENV" > Procfile
 
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
