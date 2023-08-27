@@ -136,7 +136,8 @@ RUN gem install foreman
 # Install gems
 RUN bundle install
 
-EXPOSE \$PORT
+CMD foreman start -f Procfile
+EXPOSE 3000
 " > Dockerfile
 echo "✅ Dockerfile created successfully!"
 
