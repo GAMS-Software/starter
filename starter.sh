@@ -81,8 +81,6 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@mail.com
       PGADMIN_DEFAULT_PASSWORD: Password1!
-    volumes:
-      - ./pgadmin:/var/lib/pgadmin
     ports:
       - 5050:80
     depends_on:
