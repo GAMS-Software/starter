@@ -1,11 +1,11 @@
 # Starter
 
-A bash script to start a new Rails project with Docker and Docker Compose 🚀
+A bash script to start a new Rails projects with Lato 🚀
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- Ruby installed
+- Rails gem installed
 
 ## Usage
 

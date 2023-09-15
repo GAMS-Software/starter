@@ -13,14 +13,6 @@ if [ "$ACTIVATE_REDIS" = "y" ]; then
   REDIS_ACTIVATED=true
 fi
 
-# Ask if user want to activate postgresql
-POSTGRESQL_ACTIVATED=false
-echo "🤔 Do you want to activate postgresql? (y/n)"
-read ACTIVATE_POSTGRESQL
-if [ "$ACTIVATE_POSTGRESQL" = "y" ]; then
-  POSTGRESQL_ACTIVATED=true
-fi
-
 # Ask if user want to activate lato (only if redis is activated)
 LATO_ACTIVATED=false
 if [ "$REDIS_ACTIVATED" = true ]; then
@@ -41,106 +33,13 @@ if [ "$REDIS_ACTIVATED" = true ]; then
   fi
 fi
 
-# Install Docked [https://github.com/rails/docked]
-# NOTE: Docked is a tool for managing Docker Compose-based development environments for Rails.
-echo "⏳ Installing Docked..."
-docker volume create ruby-bundle-cache
-alias docked='docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli'
-echo "✅ Docked installed successfully!"
-
 # Create new rails app using service name
 echo "⏳ Creating new rails app..."
-docked rails new $SERVICE_NAME
+rails new $SERVICE_NAME
 echo "✅ New rails app created successfully!"
 
 # Change directory to service name
 cd $SERVICE_NAME
-
-# Create a docker-compose.yml file for the service with postgresql, redis and rails
-echo "⏳ Creating docker-compose.yml file..."
-echo "version: '3.8'
-services:
-  db:
-    image: postgres:13.2-alpine
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: $SERVICE_NAME
-    ports:
-      - 5432:5432
-  redis:
-    image: redis:6.2-alpine
-    volumes:
-      - redis:/data
-    ports:
-      - 6379:6379
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@mail.com
-      PGADMIN_DEFAULT_PASSWORD: Password1!
-    volumes:
-      - ./pgadmin:/var/lib/pgadmin
-    ports:
-      - 5050:80
-    depends_on:
-      - db
-  web:
-    build: .
-    command: foreman start -f Procfile
-    environment:
-      - PORT=3000
-      - RAILS_ENV=development
-      - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/PROJECT_NAME
-    volumes:
-      - .:/rails
-      - ruby-bundle-cache:/bundle
-    ports:
-      - 3000:3000
-    depends_on:
-      - db
-      - redis
-volumes:
-  postgres:
-  redis:
-  ruby-bundle-cache:" > docker-compose.yml
-echo "✅ docker-compose.yml file created successfully!"
-
-# Create a Dockerfile for the service
-echo "⏳ Creating Dockerfile..."
-echo "FROM ruby:3.2.0-slim
-
-# Install general dependencies
-RUN apt-get update -qq && apt-get install -y build-essential libvips gnupg2 curl git
-
-# Install node and yarn dependencies
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get update -qq && apt-get install -y nodejs && npm install -g yarn
-
-# Install postgresql dependencies
-RUN apt-get update -qq && apt-get install -y libpq-dev
-
-# Mount the Rails application
-WORKDIR /rails
-COPY . ./
-
-# Install bundler
-RUN gem install bundler
-
-# Install foreman to manage Procfile
-RUN gem install foreman
-
-# Install gems
-RUN bundle install
-
-# Start the main process
-CMD foreman start -f Procfile
-EXPOSE \$PORT
-" > Dockerfile
-echo "✅ Dockerfile created successfully!"
 
 # Create a Procfile file for the service
 echo "⏳ Creating Procfile file..."
@@ -152,72 +51,47 @@ echo "# $SERVICE_NAME
 
 ## Description
 
-This is a [Rails](https://rubyonrails.org/) application dockerized.
-The default database is postgresql.
+This is a [Rails](https://rubyonrails.org/) application.
 The default cache store is redis.
 The default background job processor is sidekiq.
-
-All required services are configured in the docker-compose.yml file.
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- Ruby installed
+- Rails gem installed
 
 ### Installation
 
 1. Clone the repo with **git clone**
 
-2. Build the docker image with **docker-compose build**
+2. Go to the project folder with **cd $SERVICE_NAME**
 
-3. Create the database with **docker-compose run web rails db:create**
+3. Install dependencies with **bundle install**
 
-4. Run the migrations with **docker-compose run web rails db:migrate**
+4. Create the database with **rails db:create**
 
-5. Run seed data with **docker-compose run web rails db:seed**
+5. Run the migrations with **rails db:migrate**
+
+6. Run seed data with **rails db:seed**
 
 ### Usage
 
-- Start the app with **docker-compose up**
+- Start the app with **rails s**
 
-- Run rails console with **docker-compose run web rails c**
+- Run rails console with **rails c**
 
-- Run rails tasks with **docker-compose run web rails TASK_NAME**
+- Run rails tasks with **rails TASK_NAME**
 
-- Run tests with **docker-compose run web rails test**
+- Run tests with **rails test**
 
 The homepage of the app will be available at [http://localhost:3000](http://localhost:3000)
 The admin panel of the app will be available at [http://localhost:3000/adm](http://localhost:3000/adm)
-The pgadmin panel of the app will be available at [http://localhost:5050](http://localhost:5050)
 
 You can login in the admin panel with the following credentials:
 - email: admin@mail.com
 - password: Password1!
-
-You can login in the pgadmin panel with the following credentials:
-- email: admin@mail.com
-- password: Password1!
-
-### Connect to the database from pgadmin
-
-1. Open pgadmin panel at [http://localhost:5050](http://localhost:5050)
-2. Create a new server
-3. Set the following credentials:
-- host: db
-- port: 5432
-- username: postgres
-- password: postgres
-4. Click on save
-
-### Connect to the database from local SQL client
-
-1. Host: localhost
-2. Port: 5432
-3. Username: postgres
-4. Password: postgres
-
 " > README.md
 echo "✅ README.md file created successfully!"
 
@@ -257,55 +131,6 @@ echo "⏳ Activating redis in production environment..."
 sed -i -e 's/# config.cache_store = :mem_cache_store/config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis:\/\/localhost:6379\/0") }/g' config/environments/production.rb
 rm config/environments/production.rb-e
 echo "✅ Redis activated in production environment successfully!"
-
-fi
-
-# POSTGRESQL INSTALLATION
-##
-
-if [ "$POSTGRESQL_ACTIVATED" = true ]; then
-
-# Add pg gem to Gemfile and add it's dependencies
-echo "⏳ Adding pg gem to Gemfile and add it's dependencies..."
-# add pg gem
-echo "
-# Use postgresql as the database for Active Record
-gem 'pg'" >> Gemfile
-# remove file Gemfile-e
-rm Gemfile-e
-echo "✅ pg gem added to Gemfile and it's dependencies added successfully!"
-
-# Edit database.yml file to use postgresql in development and production environments
-echo "⏳ Editing database.yml file to use postgresql in development and production environments..."
-rm config/database.yml
-touch config/database.yml
-echo "default: &default
-  adapter: sqlite3
-  pool: 5
-  timeout: 5000
-
-test:
-  <<: *default
-  database: db/test.sqlite3
-
-development:
-  <<: *default
-  adapter: postgresql
-  database: $SERVICE_NAME
-  username: postgres
-  password: postgres
-  host: localhost
-  port: 5432
-
-production:
-  <<: *default
-  adapter: postgresql
-  database: $SERVICE_NAME
-  username: postgres
-  password: postgres
-  host: localhost
-  port: 5432" >> config/database.yml
-echo "✅ database.yml file edited successfully!"
 
 fi
 
@@ -495,44 +320,39 @@ fi
 # FINAL STEPS
 ##
 
-# Build the docker image
-echo "⏳ Building the docker image..."
-docker-compose build
-echo "✅ Docker image built successfully!"
-
 # Run bundle install
 echo "⏳ Running bundle install..."
-docker-compose run web bundle install
+bundle install
 echo "✅ bundle install completed successfully!"
 
 # Install active storage
 echo "⏳ Installing active storage..."
-docker-compose run web rails active_storage:install
+rails active_storage:install
 echo "✅ active storage installed successfully!"
 
 if [ "$LATO_ACTIVATED" = true ]; then
 
 # Install  kredis
 echo "⏳ Installing kredis..."
-docker-compose run web rails kredis:install
+rails kredis:install
 echo "✅ kredis installed successfully!"
 
 # Install lato
 echo "⏳ Installing lato..."
-docker-compose run web rails lato:install:application
-docker-compose run web rails lato:install:migrations
+rails lato:install:application
+rails lato:install:migrations
 echo "✅ lato installed successfully!"
 
 fi
 
 # Run installation tasks
 echo "⏳ Running installation tasks..."
-docker-compose run web rails db:drop
-docker-compose run web rails db:create
-docker-compose run web rails db:migrate
-docker-compose run web rails db:seed
+rails db:drop
+rails db:create
+rails db:migrate
+rails db:seed
 echo "✅ Installation tasks completed successfully!"
 
 # Complete the rails app setup and print the success message
 echo "🎉 $SERVICE_NAME service created successfully!"
-echo "👨‍💻 You can start the app with 'docker-compose up'"
+echo "👨‍💻 You can start the app with 'rails s'"
