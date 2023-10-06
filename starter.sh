@@ -291,10 +291,10 @@ pidfile: ./tmp/pids/sidekiq.pid
 logfile: ./log/sidekiq.log
 
 queues:
+  - critical
   - default
   - mailers
   - low
-  - critical
   - action_mailbox_routing
   - action_mailbox_incineration
   - active_storage_analysis
