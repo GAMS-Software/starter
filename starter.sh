@@ -5,15 +5,7 @@ echo "👋 Welcome to the Rails Starter!"
 echo "🤔 What's the name of the service you want to create?"
 read SERVICE_NAME
 
-# Ask if user want to activate redis
-REDIS_ACTIVATED=false
-echo "🤔 Do you want to activate redis? (y/n)"
-read ACTIVATE_REDIS
-if [ "$ACTIVATE_REDIS" = "y" ]; then
-  REDIS_ACTIVATED=true
-fi
-
-# Ask if user want to activate lato (only if redis is activated)
+# Ask if user want to activate lato
 LATO_ACTIVATED=false
 if [ "$REDIS_ACTIVATED" = true ]; then
   echo "🤔 Do you want to activate lato? (y/n)"
@@ -21,6 +13,14 @@ if [ "$REDIS_ACTIVATED" = true ]; then
   if [ "$ACTIVATE_LATO" = "y" ]; then
     LATO_ACTIVATED=true
   fi
+fi
+
+# Ask if user want to activate redis
+REDIS_ACTIVATED=false
+echo "🤔 Do you want to activate redis? (y/n)"
+read ACTIVATE_REDIS
+if [ "$ACTIVATE_REDIS" = "y" ]; then
+  REDIS_ACTIVATED=true
 fi
 
 # Ask if user want to activate sidekiq (only if redis is activated)
@@ -105,35 +105,6 @@ sed -i -e 's/config.i18n.default_locale = :en/config.i18n.default_locale = :en\n
 rm config/application.rb-e
 echo "✅ I18n configured in application.rb successfully!"
 
-# REDIS INSTALLATION
-##
-
-if [ "$REDIS_ACTIVATED" = true ]; then
-
-# Activate redis gem on Gemfile
-echo "⏳ Activating redis gem on Gemfile..."
-# uncomment row # gem "redis", "~> 4.0"
-sed -i -e 's/# gem "redis", "~> 4.0"/gem "redis", "~> 4.0"/g' Gemfile
-# remove file Gemfile-e
-rm Gemfile-e
-echo "✅ Redis gem activated on Gemfile successfully!"
-
-# Activate redis in development environment
-echo "⏳ Activating redis in development environment..."
-# replace "config.cache_store = :null_store" with "config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }"
-sed -i -e 's/config.cache_store = :null_store/config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis:\/\/localhost:6379\/0") }/g' config/environments/development.rb
-rm config/environments/development.rb-e
-echo "✅ Redis activated in development environment successfully!"
-
-# Active redis in production environment
-echo "⏳ Activating redis in production environment..."
-# replace "# config.cache_store = :mem_cache_store" with config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
-sed -i -e 's/# config.cache_store = :mem_cache_store/config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis:\/\/localhost:6379\/0") }/g' config/environments/production.rb
-rm config/environments/production.rb-e
-echo "✅ Redis activated in production environment successfully!"
-
-fi
-
 # LATO INSTALLATION
 ##
 
@@ -147,8 +118,6 @@ echo "
 gem 'lato'" >> Gemfile
 # add version 1.3.3 to turbo-rails gem
 sed -i -e 's/gem "turbo-rails"/gem "turbo-rails", "1.3.3"/g' Gemfile
-# uncomment the kredis gem
-sed -i -e 's/# gem "kredis"/gem "kredis"/g' Gemfile
 # uncomment the sassc-rails gem
 sed -i -e 's/# gem "sassc-rails"/gem "sassc-rails"/g' Gemfile
 # remove file Gemfile-e
@@ -220,6 +189,35 @@ Lato::User.create!(
   accepted_terms_and_conditions_version: 1
 )
 puts 'Default lato user created successfully!'" >> db/seeds.rb
+
+fi
+
+# REDIS INSTALLATION
+##
+
+if [ "$REDIS_ACTIVATED" = true ]; then
+
+# Activate redis gem on Gemfile
+echo "⏳ Activating redis gem on Gemfile..."
+# uncomment row # gem "redis", "~> 4.0"
+sed -i -e 's/# gem "redis", "~> 4.0"/gem "redis", "~> 4.0"/g' Gemfile
+# remove file Gemfile-e
+rm Gemfile-e
+echo "✅ Redis gem activated on Gemfile successfully!"
+
+# Activate redis in development environment
+echo "⏳ Activating redis in development environment..."
+# replace "config.cache_store = :null_store" with "config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }"
+sed -i -e 's/config.cache_store = :null_store/config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis:\/\/localhost:6379\/0") }/g' config/environments/development.rb
+rm config/environments/development.rb-e
+echo "✅ Redis activated in development environment successfully!"
+
+# Active redis in production environment
+echo "⏳ Activating redis in production environment..."
+# replace "# config.cache_store = :mem_cache_store" with config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+sed -i -e 's/# config.cache_store = :mem_cache_store/config.cache_store = :redis_cache_store, { url: ENV.fetch("REDIS_URL", "redis:\/\/localhost:6379\/0") }/g' config/environments/production.rb
+rm config/environments/production.rb-e
+echo "✅ Redis activated in production environment successfully!"
 
 fi
 
@@ -331,11 +329,6 @@ rails active_storage:install
 echo "✅ active storage installed successfully!"
 
 if [ "$LATO_ACTIVATED" = true ]; then
-
-# Install  kredis
-echo "⏳ Installing kredis..."
-rails kredis:install
-echo "✅ kredis installed successfully!"
 
 # Install lato
 echo "⏳ Installing lato..."
