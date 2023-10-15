@@ -207,7 +207,7 @@ if [ "$LITESTACK_ACTIVATED" = true ]; then
 echo "⏳ Adding litestack gem to Gemfile..."
 # add litestack gem
 echo "
-# Create custom web ui using litestack gem [https://github.com/oldmoe/litestack]
+# Use lite services litestack gem [https://github.com/oldmoe/litestack]
 gem 'litestack'" >> Gemfile
 # remove file Gemfile-e
 rm Gemfile-e
