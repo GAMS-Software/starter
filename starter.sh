@@ -7,12 +7,10 @@ read SERVICE_NAME
 
 # Ask if user want to activate lato
 LATO_ACTIVATED=false
-if [ "$REDIS_ACTIVATED" = true ]; then
-  echo "🤔 Do you want to activate lato? (y/n)"
-  read ACTIVATE_LATO
-  if [ "$ACTIVATE_LATO" = "y" ]; then
-    LATO_ACTIVATED=true
-  fi
+echo "🤔 Do you want to activate lato? (y/n)"
+read ACTIVATE_LATO
+if [ "$ACTIVATE_LATO" = "y" ]; then
+  LATO_ACTIVATED=true
 fi
 
 # Ask if user want to activate redis
