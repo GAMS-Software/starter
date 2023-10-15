@@ -13,12 +13,22 @@ if [ "$ACTIVATE_LATO" = "y" ]; then
   LATO_ACTIVATED=true
 fi
 
+# Ask if user want to activate litestack
+LITESTACK_ACTIVATED=false
+echo "🤔 Do you want to activate litestack? (y/n)"
+read ACTIVATE_LITESTACK
+if [ "$ACTIVATE_LITESTACK" = "y" ]; then
+  LITESTACK_ACTIVATED=true
+fi
+
 # Ask if user want to activate redis
 REDIS_ACTIVATED=false
-echo "🤔 Do you want to activate redis? (y/n)"
-read ACTIVATE_REDIS
-if [ "$ACTIVATE_REDIS" = "y" ]; then
-  REDIS_ACTIVATED=true
+if [ "$LITESTACK_ACTIVATED" = false ]; then
+  echo "🤔 Do you want to activate redis? (y/n)"
+  read ACTIVATE_REDIS
+  if [ "$ACTIVATE_REDIS" = "y" ]; then
+    REDIS_ACTIVATED=true
+  fi
 fi
 
 # Ask if user want to activate sidekiq (only if redis is activated)
@@ -50,8 +60,6 @@ echo "# $SERVICE_NAME
 ## Description
 
 This is a [Rails](https://rubyonrails.org/) application.
-The default cache store is redis.
-The default background job processor is sidekiq.
 
 ## Getting Started
 
@@ -115,7 +123,7 @@ echo "
 # Create custom web ui using lato gem [https://github.com/lato-gam/lato]
 gem 'lato'" >> Gemfile
 # add version 1.3.3 to turbo-rails gem
-sed -i -e 's/gem "turbo-rails"/gem "turbo-rails", "1.3.3"/g' Gemfile
+sed -i -e 's/gem "turbo-rails"/gem "turbo-rails"/g' Gemfile
 # uncomment the sassc-rails gem
 sed -i -e 's/# gem "sassc-rails"/gem "sassc-rails"/g' Gemfile
 # remove file Gemfile-e
@@ -187,6 +195,33 @@ Lato::User.create!(
   accepted_terms_and_conditions_version: 1
 )
 puts 'Default lato user created successfully!'" >> db/seeds.rb
+
+fi
+
+# LITESTACK INSTALLATION
+##
+
+if [ "$LITESTACK_ACTIVATED" = true ]; then
+
+# Add litestack gem to Gemfile
+echo "⏳ Adding litestack gem to Gemfile..."
+# add litestack gem
+echo "
+# Create custom web ui using litestack gem [https://github.com/oldmoe/litestack]
+gem 'litestack'" >> Gemfile
+# remove file Gemfile-e
+rm Gemfile-e
+echo "✅ litestack gem added to Gemfile successfully!"
+
+# Run bundle install
+echo "⏳ Running bundle install..."
+bundle install
+echo "✅ bundle install completed successfully!"
+
+# Run litestack install generator
+echo "⏳ Running litestack install generator..."
+rails g litestack:install
+echo "✅ litestack install generator completed successfully!"
 
 fi
 
