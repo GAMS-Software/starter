@@ -1,9 +1,9 @@
 #! /bin/bash
 
-# Ask the name of the service to create
+# Ask the name of the rails app to create
 echo "👋 Welcome to the Rails Starter!"
-echo "🤔 What's the name of the service you want to create?"
-read SERVICE_NAME
+echo "🤔 What's the name of the rails app you want to create?"
+read RAILS_APP_NAME
 
 # Ask if user want to activate lato
 LATO_ACTIVATED=false
@@ -41,21 +41,21 @@ if [ "$REDIS_ACTIVATED" = true ]; then
   fi
 fi
 
-# Create new rails app using service name
+# Create new rails app using RAILS_APP_NAME
 echo "⏳ Creating new rails app..."
-rails new $SERVICE_NAME
+rails new $RAILS_APP_NAME
 echo "✅ New rails app created successfully!"
 
-# Change directory to service name
-cd $SERVICE_NAME
+# Change directory to RAILS_APP_NAME
+cd $RAILS_APP_NAME
 
-# Create a Procfile file for the service
+# Create a Procfile file for the app
 echo "⏳ Creating Procfile file..."
 echo "web: bundle exec rails s -b 0.0.0.0 -e \$RAILS_ENV" > Procfile
 
 # Create a custom README.md file
 echo "⏳ Creating README.md file..."
-echo "# $SERVICE_NAME
+echo "# $RAILS_APP_NAME
 
 ## Description
 
@@ -72,7 +72,7 @@ This is a [Rails](https://rubyonrails.org/) application.
 
 1. Clone the repo with **git clone**
 
-2. Go to the project folder with **cd $SERVICE_NAME**
+2. Go to the project folder with **cd $RAILS_APP_NAME**
 
 3. Install dependencies with **bundle install**
 
@@ -122,8 +122,6 @@ echo "⏳ Adding lato gem to Gemfile and add it's dependencies..."
 echo "
 # Create custom web ui using lato gem [https://github.com/lato-gam/lato]
 gem 'lato'" >> Gemfile
-# add version 1.3.3 to turbo-rails gem
-sed -i -e 's/gem "turbo-rails"/gem "turbo-rails"/g' Gemfile
 # uncomment the sassc-rails gem
 sed -i -e 's/# gem "sassc-rails"/gem "sassc-rails"/g' Gemfile
 # remove file Gemfile-e
@@ -156,7 +154,7 @@ echo "✅ Routes file edited successfully!"
 echo "⏳ Creating lato_config.rb initializer..."
 touch config/initializers/lato_config.rb
 echo "Lato.configure do |config|
-  config.application_title = '$SERVICE_NAME'
+  config.application_title = '$RAILS_APP_NAME'
   config.application_version = '1.0.0'
   config.application_company_name = 'Lato Team'
   config.application_company_url = 'https://github.com/lato-gam'
@@ -174,7 +172,7 @@ echo "Lato.configure do |config|
   config.legal_terms_and_conditions_version = 1
 
   # Setup email settings
-  config.email_from = '$SERVICE_NAME <noreply@mail.com>'
+  config.email_from = '$RAILS_APP_NAME <noreply@mail.com>'
 
   # Please check source code for more configuration options:
   # https://github.com/lato-gam/lato/blob/main/lib/lato/config.rb
@@ -380,5 +378,5 @@ rails db:seed
 echo "✅ Installation tasks completed successfully!"
 
 # Complete the rails app setup and print the success message
-echo "🎉 $SERVICE_NAME service created successfully!"
+echo "🎉 $RAILS_APP_NAME rails app created successfully!"
 echo "👨‍💻 You can start the app with 'rails s'"
