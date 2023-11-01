@@ -55,7 +55,43 @@ echo "✅ Lato dependencies added to rails engine Gemfile successfully!"
 # Change directory to test/dummy
 cd test/dummy
 
-# TODO: Continue lato setup
+# Replace application.css with application.scss
+echo "⏳ Replacing application.css with application.scss..."
+rm app/assets/stylesheets/application.css
+touch app/assets/stylesheets/application.scss
+echo "✅ application.css replaced with application.scss successfully!"
+
+# Import lato styles in application.scss
+echo "⏳ Importing lato styles in application.scss..."
+echo "@import 'lato/application';" >> app/assets/stylesheets/application.scss
+echo "✅ lato styles imported in application.scss successfully!"
+
+# Import lato javascript in application.js
+echo "⏳ Importing lato javascript in application.js..."
+echo "import \"lato/application\";" >> app/javascript/application.js
+echo "✅ lato javascript imported in application.js successfully!"
+
+# Edit routes file to mount lato engine
+echo "⏳ Editing routes file to mount lato engine..."
+sed -i -e 's/Rails.application.routes.draw do/Rails.application.routes.draw do\n  mount Lato::Engine => "\/adm"/g' config/routes.rb
+rm config/routes.rb-e
+echo "✅ Routes file edited successfully!"
+
+# Edit seeds file to create a default lato user
+echo "⏳ Editing seeds file to create a default lato user..."
+echo "
+puts 'Creating default admin user...'
+Lato::User.create!(
+  first_name: 'Admin',
+  last_name: 'Admin',
+  email: 'admin@mail.com',
+  password: 'Password1!',
+  password_confirmation: 'Password1!',
+  accepted_privacy_policy_version: 1,
+  accepted_terms_and_conditions_version: 1
+)
+puts 'Default lato user created successfully!'" >> db/seeds.rb
+echo "✅ Seeds file edited successfully!"
 
 # Install active storage
 echo "⏳ Installing active storage..."

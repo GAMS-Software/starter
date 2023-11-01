@@ -193,6 +193,7 @@ Lato::User.create!(
   accepted_terms_and_conditions_version: 1
 )
 puts 'Default lato user created successfully!'" >> db/seeds.rb
+echo "✅ Seeds file edited successfully!"
 
 fi
 

@@ -17,7 +17,19 @@ sh starter.sh
 rm starter.sh
 ```
 
-Start coding! 🤓
+Start coding a new Rails app! 🤓
+
+### Engine mode
+
+Opern terminal an run:
+
+```bash
+wget https://raw.githubusercontent.com/lato-gam/starter/main/starter-engine.sh
+sh starter-engine.sh
+rm starter-engine.sh
+```
+
+Start coding a new Rails engine! 🤓
 
 ## Tested on
 
