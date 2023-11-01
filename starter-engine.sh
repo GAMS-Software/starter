@@ -30,6 +30,19 @@ sed -i '' -e 's/spec.metadata\["source_code_uri"\]/# spec.metadata\["source_code
 sed -i '' -e 's/spec.metadata\["changelog_uri"\]/# spec.metadata\["changelog_uri"\]/g' $RAILS_ENGINE_NAME.gemspec
 echo "✅ Rails engine gemspec updated successfully!"
 
+# Create javascript file for the engine
+echo "⏳ Creating javascript file for the engine..."
+mkdir app/assets/javascripts
+mkdir app/assets/javascripts/$RAILS_ENGINE_NAME
+touch app/assets/javascripts/$RAILS_ENGINE_NAME/application.js
+echo "✅ Created javascript file for the engine!"
+
+# Added link to javascript assets on manifest
+echo "⏳ Added link to javascript assets on manifest..."
+echo "
+//= link_directory ../images/$RAILS_ENGINE_NAME .jpg
+//= link_tree ../javascripts/$RAILS_ENGINE_NAME .js" >> app/assets/config/${RAILS_ENGINE_NAME}_manifest.js
+
 if [ "$LATO_ACTIVATED" = true ]; then
 
 # Add lato to rails engine gemspec
@@ -68,8 +81,30 @@ echo "✅ lato styles imported in application.scss successfully!"
 
 # Import lato javascript in application.js
 echo "⏳ Importing lato javascript in application.js..."
+mkdir app/javascript
+touch app/javascript/application.js
 echo "import \"lato/application\";" >> app/javascript/application.js
 echo "✅ lato javascript imported in application.js successfully!"
+
+# Create importmap.rb file in config
+echo "⏳ Creating importmap.rb file in config..."
+touch config/importmap.rb
+echo "
+# Pin npm packages by running ./bin/importmap
+
+pin \"application\"
+pin_all_from \"app/javascript/controllers\", under: \"controllers\"
+
+pin \"@hotwired/turbo-rails\", to: \"turbo.min.js\", preload: true
+pin \"@hotwired/stimulus\", to: \"stimulus.min.js\", preload: true
+pin \"@hotwired/stimulus-loading\", to: \"stimulus-loading.js\", preload: true" >> config/importmap.rb
+echo "✅ Importmap file created successfully!"
+
+# Add link to javascript assets on manifest
+echo "⏳ Add link to javascript assets on manifest..."
+echo "
+//= link_tree ../../javascript .js" >> app/assets/config/manifest.js
+echo "✅ Added link to javascript assets on manifest!"
 
 # Edit routes file to mount lato engine
 echo "⏳ Editing routes file to mount lato engine..."
@@ -104,15 +139,18 @@ rails lato:install:application
 rails lato:install:migrations
 echo "✅ Lato installed successfully!"
 
-# Run migrations
-echo "⏳ Running migrations..."
-rails db:migrate
-echo "✅ Migrations run successfully!"
-
 # Go back to the root directory
 cd ../..
 
 fi
+
+# Run installation tasks
+echo "⏳ Running installation tasks..."
+rails db:drop
+rails db:create
+rails db:migrate
+rails db:seed
+echo "✅ Installation tasks completed successfully!"
 
 # Complete the rails engine setup and print the success message
 echo "🎉 $RAILS_ENGINE_NAME rails engine created successfully!"

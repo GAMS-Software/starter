@@ -29,6 +29,8 @@ sh starter-engine.sh
 rm starter-engine.sh
 ```
 
+NOTE: Currently **works only with engine names in snake_case**.
+
 Start coding a new Rails engine! 🤓
 
 ## Tested on
