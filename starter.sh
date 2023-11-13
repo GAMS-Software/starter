@@ -124,7 +124,7 @@ echo "
 gem 'lato'" >> Gemfile
 # add sassc-rails gem
 echo "
-# Compile sass.
+# Compile SASS to CSS
 gem 'sassc-rails'" >> Gemfile
 # remove file Gemfile-e
 rm Gemfile-e
