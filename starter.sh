@@ -122,8 +122,10 @@ echo "⏳ Adding lato gem to Gemfile and add it's dependencies..."
 echo "
 # Create custom web ui using lato gem [https://github.com/lato-gam/lato]
 gem 'lato'" >> Gemfile
-# uncomment the sassc-rails gem
-sed -i -e 's/# gem "sassc-rails"/gem "sassc-rails"/g' Gemfile
+# add sassc-rails gem
+echo "
+# Compile sass.
+gem 'sassc-rails'" >> Gemfile
 # remove file Gemfile-e
 rm Gemfile-e
 echo "✅ lato gem added to Gemfile and it's dependencies added successfully!"
