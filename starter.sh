@@ -92,8 +92,8 @@ This is a [Rails](https://rubyonrails.org/) application.
 
 - Run tests with **rails test**
 
-The homepage of the app will be available at [http://localhost:3000](http://localhost:3000)
-The admin panel of the app will be available at [http://localhost:3000/adm](http://localhost:3000/adm)
+The homepage of the app will be available at [http://localhost:3000](http://localhost:3000).<br>
+The admin panel of the app will be available at [http://localhost:3000/adm](http://localhost:3000/adm).
 
 You can login in the admin panel with the following credentials:
 - email: admin@mail.com
